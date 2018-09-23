@@ -1,0 +1,1179 @@
+<HTA:APPLICATION
+		ID="TechTools"
+		SINGLEINSTANCE="yes"
+		APPLICATIONNAME="TechTools"
+		BORDER="thin"
+		borderStyle="normal"
+		CAPTION="yes"
+		ICON="images/fix.png"
+		maximizeButton="yes"
+		minimizeButton="yes"
+		showInTaskbar="yes"
+		windowState="maximize"
+		innerBorder="no"
+		navigable="yes"
+		scroll="yes"
+		scrollFlat="yes"
+	/>
+<head>
+	<meta http-equiv="x-ua-compatible" content="IE=11">
+	<title>TechTools by Simon Tan</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<style>
+		body{ background-color:black; color:white}
+		p{ margin:0px; padding:0px}
+		.c{text-align:center}
+		.h{display:none}
+		.c{ text-align: center}
+		.va{ vertical-align: middle}
+		table{background-color: black; color:white}
+		td{border:solid 1px red}
+		.h100{height:100%}
+		.h50{height: 50%}
+		.w100{width:100%}
+		.w50{width:50%}
+		/* form label{ float: left; clear: left; width: 25%; text-align: right; } */
+		form label{ float: left; clear: left; width: 15%; text-align: right; padding-right:5px}
+		form input { float: left; width:75% }
+		form div{width:75%}
+		.bolder { font-weight: bolder}
+		.actionName{ margin-left: 10px}
+		fieldset img{padding-bottom: 5px}
+		.busy{ cursor:progress }
+		#run{background-color:#dddddd; color:black}
+		#remote{background-color:#dddddd; color:black}
+		#optimize{background-color:#dddddd; color:black}
+		#quickTools{background-color:#dc3545; color:white}
+		#out{padding:15px;
+			height:250px;
+			width:98%;
+			float:left;
+			background-color:black;
+			color:white
+		}
+		#btnSave{float:right; width:30%}
+
+		/* Clearable text inputs */
+		.clearable{
+			position: relative;
+			display: inline-block;
+		}
+		.clearable input[type=text]{
+			padding-right: 24px;
+			width: 100%;
+			box-sizing: border-box;
+		}
+		.clearable__clear{
+			display: none;
+			position: absolute;
+			right:0; top:0;
+			padding: 0 8px;
+			font-style: normal;
+			font-size: 1.2em;
+			user-select: none;
+			cursor: pointer;
+			color:red;
+		}
+		.clearable input::-ms-clear {  /* Remove IE default X */
+			display: none;
+		}
+	</style>
+</head>
+<html>
+	<body class="h100">
+		<table class="w100 h100">
+			<tr><td class=w50>
+				<div style="padding: 0px 10px; overflow: auto; height:300px;">
+					<span class="clearable">
+						<input id=search type="text" value="" placeholder="Search">
+						<i class="clearable__clear">&times;</i>
+					</span>
+					<div id=tree></div>
+				</div>
+			</td><td>
+				<fieldset class="h100">
+					<legend>Description</legend>
+					<span id=desc class=w100></span>
+				</fieldset>
+			</td></tr>
+			<tr>
+				<td class="c va">
+					Host(s):
+					<span class="clearable">
+						<input id=host><i class="clearable__clear">&times;</i>
+					</span>
+					<span class="clearable"></span>
+					Parameters:
+					<span class="clearable">
+						<input id=param><i class="clearable__clear">&times;</i>
+					</span>
+				</td>
+				<td>
+					<button type=button class=btn id=run><u>R</u>un</button>
+					<button type=button class=btn id=remote>Re<u>m</u>otely</button>
+					<button type=button class=btn id=optimize><u>O</u>ptimize</button>
+				<div class="btn-group">
+					<button type="button" id=quickTools class="btn">QuickTools</button>
+					<button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					  	<span class="sr-only">Toggle Dropdown</span>
+					</button>
+					<div class="dropdown-menu">
+					</div>
+				</div>
+			</td></tr>
+			<tr><td colspan=2><fieldset><legend>Preview Command</legend><p id=preview></p></fieldset></td></tr>
+			<tr class="h100"><td colspan=2 class="h100">
+				<fieldset class="h100">
+					<div style="position:relative; float:right; margin-top:30px">
+						<img id="run_highlighted" src="images/launch-lite.png"><br>
+						<img id="copy" src="images/copy-lite.png"><br>
+						<img id="save_output" src="images/save-lite.png"><br>
+						<img id="clear" src="images/clear-lite.png">
+					</div>
+					<legend>Output</legend>
+					<textarea id=out></textarea>
+				</fieldset>
+			</td></tr>
+			<tr><td colspan=2>
+				<p class="c vc">TechTools by Simon Tan.<br>Free for personal use. For commercial use, please see <a href="http://github.io/simon1tan/techtools/license.htm" target=_blank>license</a>.</p>
+			</td></tr>
+		</table>
+	</body>
+	<input id="file-input" type="file" name="name" style="display: none;" />
+</html>
+<script src="lib/jquery/jquery-3.3.1.min.js"></script>
+<script src="lib/quicksort.min.js"></script>
+<script src="lib/jstree/jstree.js"></script>
+<link rel="stylesheet" href="lib/jstree/themes/default/style.min.css" />
+<script src="lib/jsonQ.min.js"></script>
+<!-- <script src="lib/json-stringify-pretty-compact.js"></script> -->
+<script src="lib/jquery/jquery.color-2.1.2.min.js"></script>
+<script src="lib/jwerty.min.js"></script>
+
+<script src="lib/jquery/jquery-ui-1.9.2/js/jquery-ui-1.12.1.custom.min.js"></script>
+<link type="text/css" rel="stylesheet" href="lib/jquery/jquery-ui-1.9.2/css/ui-darkness/jquery-ui-1.12.1.custom.min.css"  media="screen,projection"/>
+
+<script src="lib/popper.min.js"></script>
+<script src="lib/bootstrap/js/bootstrap.min.js"></script>
+<link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+<script src="lib/jquery.dirrty.min.js"></script>
+<script src="lib/utils.js"></script>
+
+
+<script language=javascript>
+// polyfills
+String.prototype.includes = function(search, start) {
+    if (typeof start !== 'number') {
+      	start = 0;
+    }
+
+    if (start + search.length > this.length) {
+      	return false;
+    } else {
+      	return this.indexOf(search, start) !== -1;
+    }
+  };
+/////////////////////
+var jstree = null
+var bDebug = false
+var fso = new ActiveXObject("Scripting.FileSystemObject")
+function readFile(filename){
+	var ForReading = 1, ForWriting = 2, ForAppending = 8;
+	var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
+	var fso = new ActiveXObject("Scripting.FileSystemObject")
+	if (fso.fileExists(filename)) {
+		s = ''
+		try{
+			f = fso.GetFile(filename);
+			var stream = f.OpenAsTextStream(ForReading, TristateUseDefault)
+			while ( !stream.AtEndOfStream  ) {
+				s = s + stream.readline() + "\n"
+			}
+		}catch(e){
+			$("#out").val("!! Error reading file, " + filename + '!!')
+			return('')
+		}finally{
+			stream.close()
+		}
+		return(s)
+	} else {
+		return(false)
+	}
+}
+
+function writeFile(filename, text){
+	var ForReading = 1, ForWriting = 2, ForAppending = 8;
+	var TristateUseDefault = -2, TristateTrue = -1, TristateFalse = 0;
+	try{
+		var fso = new ActiveXObject("Scripting.FileSystemObject")
+		f = fso.OpenTextFile(filename, ForWriting, true)
+		f.Write(text)
+	}catch(e){
+		$("#out").val("!! Error reading file, " + filename + '!!')
+		return('')
+	}finally{
+		f.Close()
+	}
+}
+
+function highlight_go(action, cmdline){
+	oShell = new ActiveXObject("WScript.shell");
+	$('body').addClass('busy')
+	try{
+		if(cmdline){ // has #, capture commandline output
+			oExec = oShell.Exec(action)
+			output = ""
+			while(!oExec.StdOut.AtEndOfStream){
+				output += oExec.StdOut.ReadLine() + "\n"
+			}
+			while(!oExec.StdErr.AtEndOfStream){
+				output += oExec.StdErr.ReadLine() + "\n"
+			}
+			log("Executing program: " + action + "\n" +  output)
+		}else{
+			bWaitOnReturn = false
+			intWindowStyle = 1
+			oShell.run(action, intWindowStyle, bWaitOnReturn )
+		}
+	}catch(e){
+		log("Unable to perform action: " + action + ". Check that the path is correct.")
+	}finally{
+		$('body').removeClass('busy')
+	}
+}
+
+function really_go(host, action, param, remote, cmdline){
+	// if require host but none specified in cases where hosts = "abc,"
+	// if (action.includes("@") && host.trim() == ""){
+	// 	log("Please enter host")
+	// 	blink_element($("#host"))
+	// 	return(false)
+	// }
+
+	// replace host
+	while(action.includes("@")){
+		action = action.replace("@", host)
+	}
+
+	// check parameters
+	params = (param == "") ? params=[] : params = param.split(",") // this returns 1 if param is empty!
+
+	action_count = (action.match(/#/g) || []).length // count action parameters required
+	// trim params
+	$.each(params, function(i, param){
+		params[i] = param.trim()
+	})
+
+	if( params.length > action_count){
+		debug("Too many parameters")
+		blink_element($("#param"))
+		return false
+	} else if ( params.length < action_count) {
+		debug("Not enough parameters")
+		blink_element($("#param"))
+		return false
+	}
+	i = 0
+	while(action.includes("#")){
+		action = action.replace("#", params[i])
+		i++
+	}
+
+	if(remote){
+		if(host === ""){
+			debug("Remote host must be filled in.")
+			blink_element($("#host"))
+			return(false)
+		}else{
+			action = config.remote + " \\\\" + host + " " + action
+		}
+	}
+	debug(action)
+
+	// return(false)
+	highlight_go(action, cmdline) // common code
+}
+
+function go(hosts, action, param, remote){
+	// if require host but none specified
+	hosts = trim_char(hosts.trim(),",") //remove any trailing commas
+	if (action.includes("@") && hosts.trim() == ""){
+		log("Please enter a host")
+		blink_element($("#host"))
+		return(false)
+	}
+
+	// check to see if command line executable
+	cmdline = false
+	if (action[0]==="#"){
+		action = action.substring(2.-1)
+		cmdline = true
+	}
+
+	// check to see if need any params. If not needed, set to empty
+	if (action.includes("#")){
+		param = trim_char(param.trim(),",") //remove any trailing commas
+		//check that param does not contain #
+		if(param.includes("#")){
+			log("Param may not contain #")
+			blink_element($("#param"))
+			return(false)
+		}
+	}else{
+		param = ""
+	}
+
+	// check that host does not contain @
+	if(hosts.includes("@")){
+		log("Host may not contain @")
+		blink_element($("#host"))
+		return(false)
+	}
+
+	// process single or multiple hosts
+	if( hosts.includes(",") ){
+		hosts = hosts.split(",")
+		$.each(hosts, function(i, host){
+			really_go(host.trim(), action, param, remote, cmdline)
+		})
+	}else{
+		really_go(hosts.trim(), action, param, remote, cmdline)
+	}
+}
+
+function debug(text) {
+	if(bDebug){
+		log(text)
+	}
+}
+
+function log(text){ // log to Output
+	d = new Date
+	$('#out').val(d.toUTCString() + ": " + text + "\n" + $('#out').val() )
+}
+
+function show_desc(){
+	node = $("#tree").jstree(true).get_selected(true)
+	node = node[0]
+	s = ""
+	if (node.text){
+		s += node.text  + "<br>"
+	}
+
+	if (node.data.cmd){
+		s += "Command: " + node.data.cmd + "<br>"
+	}
+
+	if (node.data.param){
+		s += "Paramenters: " + node.data.param + "<br>"
+	}
+	if (node.data.desc){
+		s += "Description: " +  node.data.desc + "<br>"
+	}
+
+	if (node.data.www){
+		s += "Web: <a href=\""+ node.data.www +"\" class=external target=_blank>" + node.data.www + "</a><br>"
+	}
+	if (node.data.url){
+		s += "File: <a href=\""+ node.data.url +"\" class=external target=_blank>" + node.data.url + "</a><br>"
+	}
+	if (node.data.license){
+		s += "License: " + node.data.license + "<br>"
+	}
+
+	if(s == ""){
+		$("#desc").html("No details to show")
+	}else{
+		$("#desc").html(s)
+	}
+
+}
+
+function show_edit(id, text, parent, cmd, param, desc, www, license, url){
+	// clean undefined
+	license = (license) ? encode(license) : ''
+	url = (url) ? encode(url) : ''
+	param = (param) ? encode(param) : ''
+	www = (www) ?  encode(www) : ''
+	cmd = (cmd) ?  encode(cmd) : ''
+	desc = (desc) ?  encode(desc) : ''
+
+	$("#desc").html("<form id=form_tool><input type=hidden id=parent value='" + parent + "'><label>Name:</label><input id=text value='" + text +"'><label>Description:</label><input id=desc1 value='"+ desc +"'><label>Command:</label><input id=cmd value='"+ cmd +"'><label>Parameters:</label><input id=param1 value='"+ param +"'><label>WWW:</label><input id=www value='"+ www +"'><label>License:</label><input id=license value='"+ license +"'><label>URL:</label><input id=url value='"+ url +"'><div><input id=btnCancel type=\"button\" value=Cancel onclick=\"show_desc()\" style=\"width:30%;margin-left:60px\"><input type=button id=btnSave onclick=\"save_edit(this.form)\" value=Save></div></form>")
+
+	$('form').dirrty({ preventLeaving: false })
+}
+
+function save_edit(f){
+	// make sure data is not empty
+	if (!$("#form_tool").dirrty("isDirty")) {
+		debug("No changes to save")
+		return(false)
+	}
+
+	if( (f.cmd.value === "") || (f.text.value === "")){
+		debug("Name and Command must be filled in")
+		return(false)
+	}
+
+	obj = {}
+	obj.id = f.parent.value.trim() + "-" + f.text.value.trim()
+	obj.text = f.text.value.trim()
+	obj.data = {}
+	obj.data.cmd = f.cmd.value.trim()
+	obj.data.param = f.param1.value.trim()
+	obj.data.desc = f.desc1.value.trim()
+	obj.data.www = f.www.value.trim()
+	obj.data.url = f.url.value.trim()
+	obj.data.license = f.license.value.trim()
+
+	// check if text already exists,
+	// will always exist if changing other fields and trying to save.
+	selected_node = jstree.jstree(true).get_selected(true)
+	if(selected_node[0].text !== obj.text ){ // name changed, check to see if any duplicates
+
+		json = jstree.jstree(true).get_json(f.parent.value, {flat:true})
+		texts = jsonQ(json).find("text").value()
+
+		if( $.inArray(obj.text, texts ) > -1 ){
+			debug("Name conflicts with existing node. Must be unique.")
+			blink_element($("#text"))
+			return(false)
+		}
+	}
+
+	// replace old object
+	node = jstree.jstree(true).get_selected(true);
+	node[0].data = obj.data
+	jstree.jstree(true).set_text(node[0], obj.text)
+	set_id(node[0], obj.id)
+
+	show_desc()
+	// write to file
+	// node = jstree.jstree(true).get_node(node.parent, true)
+	write_category(node.parent)
+}
+
+function encode(str){
+	// str = str.replace(/\\/g,"\\\\")
+	// str = str.replace(/\\"/g, String.fromCharCode(92) + "\"")
+	// str = str.replace(/\\/g,"\\\\")
+	// str = str.replace(/"/g,"\\\"")
+	str = str.replace(/'/igm,"&apos;")
+	return (str)
+}
+
+function decode(str){
+	str = str.replace(/\\\\/g,"\\")
+	return (str)
+
+}
+
+function check_duplicate_text(node, match){
+	var check = false
+	$.each(node.children, function (index, text) {
+		n = $("#tree").jstree(true).get_node(text)
+		if (n.text === match){
+			check = true
+			return ( check )
+		}
+	});
+	return(check)
+}
+
+function write_category(node_id){
+	json = jstree.jstree(true).get_json( node_id, {flat:true} )
+	json.shift() // get rid of 1st one which is the parent
+
+	container = []
+	$.each(json, function(i, obj){
+		new_obj = {}
+		new_obj.text = obj.text
+		new_obj.cmd = obj.data.cmd
+		new_obj.desc = obj.data.desc
+		new_obj.www = obj.data.www
+		new_obj.license = obj.data.license
+		new_obj.url = obj.data.url
+		new_obj.param = obj.data.param
+		container.push(new_obj)
+	})
+
+	writeFile("json\\" + node_id + ".json", JSON.stringify( container ))
+	debug("Write tool 1: " + "json\\" + node_id + ".json")
+}
+
+function update_children_ids(new_id){
+	// change all children ids to match
+	json = jstree.jstree(true).get_json( new_id, {flat:true} )
+	if( (json == false) || (json.length < 2)){
+		log("Nothing to update: "+new_id)
+		return(false)
+	}
+
+	debug("update_children_ids: " + new_id)
+	json.shift()
+	$.each(json, function(i, node){
+		node = jstree.jstree(true).get_node( node.id )
+		set_id(node, node.parent +"-"+ node.text )
+	})
+}
+
+function set_id(node, new_id){
+	anchor = new_id + "_anchor"
+
+	$("#" + fix_jquery_selector(node.id) + "_anchor").attr("id", anchor)
+	$("#" + fix_jquery_selector(node.id)).attr("aria-labelledby", anchor)
+	node.a_attr.id = anchor
+	jstree.jstree(true).set_id(node, new_id )
+}
+
+var jstree = null // make jstree global
+var last_clicked = null //used remove bolder
+var creating_node = false //used to differentiate creating or editing
+var node_type = null
+
+$(document).ready(function(){
+
+	var errors = false
+	// size window
+	window.moveTo(0,0)
+	window.resizeTo(screen.width, screen.height)
+
+	$('#desc').html('') // clear this in case refresh does not clear it
+
+	// Populate quickTools
+	if( fso.fileExists("json\\quickTools.json")){
+		try{
+			qt = JSON.parse( readFile('json\\quickTools.json') )
+		}catch(e){
+			debug("!! Error reading json\\quickTools.json!!")
+		}
+		$.each(qt, function(i, val){
+			$(".dropdown-menu").append("<a class='dropdown-item' href='#'>" + val.text + "</a>").data()
+			$.data(document.body, val.text, val.cmd)
+			if(val.default){
+				$("#quickTools").text( val.text );
+				$("#quickTools").val( val.text );
+				$.data(document.body, "quickTools", val.cmd)
+			}
+		})
+	}else{
+		debug("!! Error reading json\\quickTools.json. Make sure file exists!!")
+	}
+
+	// Read settings file
+	debug('Reading settings.json')
+	if( fso.fileExists( 'settings.json' )){
+		try{
+			config = JSON.parse( readFile("settings.json") )
+		}catch(e){
+			$("#out").val("!! Error reading settings.json. Please validate the JSON data!!")
+			return(false)
+		}
+	}else{
+		$("#out").val("!! Error reading settings.json. Make sure file exists!!")
+		return(-1)
+	}
+
+	// sort categories
+	if (config.sort_categories){
+		debug('Sorting categories')
+		config.categories = config.categories.quickSort()
+	}
+
+	// add categories
+	debug('Populating jstree')
+	cats = []
+	$.each(config.categories, function(i,cat){
+		cats.push({
+			"id":cat,
+			"text":cat,
+			"type":"1",
+			"data":{ "previous_text":cat }, //used to keep track of old name for renaming files
+		})
+
+		debug("\t" + 'Reading json\\' + cat + '.json')
+		try{
+			tools = JSON.parse( readFile('json\\' + cat + '.json') )
+		}catch(e){
+			debug("!! Error reading json\\" + cat + ".json. Please validate the JSON data!!")
+			errors = true
+			return(-1)
+		}
+
+		// add id and text to tool list
+		$.each(tools, function(j, tool){
+			if ( tool.cmd ){ //skip. really shouldn't have any
+				tools[j].id = cat + "-" + tool.text
+				tools[j].text = tool.text
+				tools[j].type = "2"
+				tools[j].data = {"desc": tool.desc, "www": tool.www, "license":tool.license, "url":tool.url, "param":tool.param, "cmd":tool.cmd , "previous_text":tool.text}
+			}
+		})
+
+		// add tools as child nodes
+		cats[i].children = tools
+	})
+
+	// debug( JSON.stringify(cats) )
+
+	// Sort Tools
+	if(config.sort_tools){
+		// jQ = jsonQ(cats)
+		// cats = jQ.sort('name').jsonQ_root
+		jsonQ.settings.sort.caseIgnore=true; //causes toLowerCase error even though toLowerCase exists
+		cats = jsonQ(cats).sort('text').jsonQ_root
+	}
+
+	jsondata = [{
+			"id": "0",
+			"text": "TechTools",
+			"type": "0",
+			"state":{"opened":true},
+			"children":cats,
+			"data":{ "disable_close":true }
+	}]
+
+	// init jstree
+	debug('Initialize jstree')
+	jstree = $('#tree').jstree({
+		'core' : {
+			'check_callback' : function (operation, node, node_parent, node_position, more) {
+				// Prevent renaming of root node
+				if(operation=='rename_node' && node.type==="0"){
+					debug("Renaming of root node is not allowed")
+					return false
+				}else{
+					return true
+				}
+		 	}
+			,"initially_open" : [config.default]
+			, "dblclick_toggle" : false
+			, "multiple" : false
+			, "animation" : 0
+			// ,'force_text' : true
+			// , "themes" : { "stripes" : true }
+			, 'data' : jsondata
+		}
+		, "plugins" : [ "unique", "search", "contextmenu", "types" ] //wholerow changes border border, looks really bad
+		, 'contextmenu' : {
+			"items": function(node) {
+				right_click = true
+				debug("contextmenu")
+				if(node.type==="0"){
+					return{
+						"Create": { // Create Category
+							"separator_before": false,
+							"separator_after": false,
+							"label": "Create",
+							"action": function (obj) {
+								creating_node = true
+								node_type = "1"
+								duplicate = true
+								i = 0
+								while(duplicate){
+									text = "New Category"
+									if (i>0){
+										text += " " + i
+									}
+									if (check_duplicate_text(node, text) == true){
+										i++
+									}else{
+										duplicate = false
+
+										new_obj = {"id":text, "text": text, "type":"1", "parent":"0", "children":[], data:{ "previous_text":text } }
+										jstree.jstree("create_node", node.id, new_obj, "first"); // create node under "1"
+
+										// add to config
+										config.categories.unshift(text)
+										writeFile("settings.json", JSON.stringify( config ) )
+										debug("Write File 1: " + "settings.json")
+										// debug( stringify(config, { maxLength:500 } ) )
+
+										// create empty file
+										debug("Create Empty File: " + new_obj.id + ".json")
+										writeFile("json\\" + new_obj.id + ".json", "[]")
+
+										jstree.jstree('edit', new_obj.id, false);
+									}
+								}
+							}
+						}
+					}
+				}else if(node.type==="1"){
+					return {
+						"Create": { // Create Tool
+							"separator_before": false,
+							"separator_after": false,
+							"label": "Create",
+							"action": function (obj) {
+								node_type = "2"
+								creating_node = true
+
+								// check that text is not duplicated. search all children
+								duplicate = true
+								i = 0
+								while(duplicate){
+									text = "New Tool"
+									if (i>0){
+										text += " " + i
+									}
+									if (check_duplicate_text(node, text) == true){
+										i++
+									}else{
+										duplicate = false
+
+										new_obj = {"id":node.id +"-" + text, "text": text, "type":"2", "parent":node.parent, data:{"cmd":text,"desc":"","www":"","license":"","url":"","param":"", "previous_text":text} }
+										debug("node.parent " + node.parent)
+										jstree.jstree("create_node", node.id, new_obj, "first"); // create node under "1"
+
+										debug("create tool " + node.text)
+										write_category(node.id)
+										debug("Write File: " + node.id + ".json")
+
+										// jstree.jstree('edit', text, false);
+
+									}
+								}
+							}
+						},
+						"Edit": { // Rename category
+							"separator_before": false,
+							"separator_after": false,
+							"label": "Edit",
+							"action": function (obj) {
+								jstree.jstree('edit', node);
+
+								// see triggered event
+							}
+						},
+						"Delete": { // Delete category
+							"separator_before": false,
+							"separator_after": false,
+							"label": "Delete",
+							"action": function (obj) {
+								answer = confirm('Really delete tool?')
+								if(answer){
+									jstree.jstree('delete_node', node);
+
+									// remove from settings.json
+									index = $.inArray(node.text, config.categories)
+									config.categories.splice(index, 1)
+									writeFile("settings.json", JSON.stringify( config ) )
+									debug("Write File 1: " + "settings.json")
+
+									// delete file
+									if(fso.fileExists("json\\" + node.text + ".json")){ // check if file actually exists
+										fso.DeleteFile("json\\" + node.text + ".json")
+										debug("DeleteFile " + "json\\" + node.text + ".json")
+									}
+
+									$("#desc").html('')
+								}
+							}
+						}
+					};
+				}else{ // 2
+					return {
+						"Edit": { // Edit Tool
+							"separator_before": false,
+							"separator_after": false,
+							"label": "Edit",
+							"action": function (obj) {
+								show_edit(node.id, node.text, node.parent, node.data.cmd, node.data.desc, node.data.www, node.data.license, node.data.url)
+							}
+						},
+						"Delete": { // Delete Tool
+							"separator_before": false,
+							"separator_after": false,
+							"label": "Delete",
+							"action": function (obj) {
+								answer = confirm('Really delete tool?')
+								if(answer){
+									jstree.jstree('delete_node', node);
+
+									write_category(node.parent)
+
+									$("#desc").html('')
+								}
+							}
+						}
+					};
+				}
+			}
+		}
+		, "types" : {
+			"0" : {
+				"max_children" : 1
+				// , "max_depth" : 0
+				// , "valid_children" : ["1"] // prevents creation
+				// , "delete_node" : false
+			},
+			"1" :{
+				// "max_children" : 1
+				// , "max_depth" : 2
+				// , "valid_children" : ["2"]
+			},
+			"2":{
+				// "max_children" : 0
+				// , "max_depth" : 0
+				// , "create_node" : false
+			}
+		}
+	})
+
+	// click on node
+	// jstree.on("select_node.jstree", function (e, data) {
+	// });
+
+	jstree.on("create_node.jstree", function(e, data){
+		// $(".jstree-clicked").removeClass("jstree-clicked") //remove all other highlighted after creating node!
+		debug("create_node.jstree")
+
+		if(data.node.type=="2"){
+			show_edit( data.node.id, data.node.text, data.node.parent, data.node.data.cmd, data.node.data.param, data.node.data.desc, data.node.data.www, data.node.data.license, data.node.data.url )
+		}
+
+		// select this
+		jstree.jstree(true).select_node(data.node.id)
+		jstree.jstree(true).deselect_node(data.node.parent)
+	})
+
+	jstree.on("rename_node.jstree", function(e, data){
+		var node = data.node //$.extend(true, {}, data.node);
+
+		if(node.text === node.data.previous_text){ // nothing changed
+			debug("Nothing changed")
+			return(false)
+		}
+
+		if(node.type==="0"){
+			debug("Renaming root is not allowed")
+			jwerty.fire('escape','#tree','body')
+			return(false)
+		}
+
+		debug("rename_node.jstree")
+		creating_node = false
+
+		if( node.type ==="1"){  // category
+
+			// update config file and save
+			cat_index = $.inArray(node.data.previous_text, config.categories)
+			config.categories[cat_index] = node.text
+			writeFile("settings.json", JSON.stringify( config ) )
+			debug("Update settings.json")
+			// debug( stringify( config ) )
+
+			// rename file
+			if ( fso.fileExists("json\\" + node.data.previous_text + ".json") ){
+				fso.MoveFile("json\\" + node.data.previous_text + ".json", "json\\" + node.text + ".json")
+				debug("Move File:" + "json\\" + node.data.previous_text + ".json, " + "json\\" + node.text + ".json")
+			}
+
+			set_id(node, node.text )
+			node.data.previous_text = node.text
+
+			// change all children ids to match
+			update_children_ids(node.text )
+		}else if( node.type==="2"){ // tool
+			set_id(node, node.parent+'-'+node.text )
+
+			write_category(node.parent)
+
+			// show_edit( node.id, node.text, node.parent, node.data.cmd, node.data.param, node.data.desc, node.data.www, node.data.license, node.data.url )
+			show_desc()
+			$('#form').isDirty = true
+		}
+
+		right_click = false
+
+	})
+
+	jstree.on("select_node.jstree", function (e, data) {
+		debug("node.id: " + data.node.id)
+	})
+
+	// On click, toggle node
+	jstree.on('click', '.jstree-anchor', function (e, data) {
+		// clear search
+		$('#search').val('')
+
+		$('#tree').jstree(true).toggle_node(e.target);
+		// jstree.jstree("open_node", e.target)
+		var e =  window.event || event;
+		var button = e.which || e.button;
+		if (button == 3){ // right click
+		}else{
+			$("#desc").html('')
+
+			// can't use get_node!
+			node = $("#tree").jstree(true).get_node($(".jstree-clicked").attr("id"))
+			if (node.type === '2' ){ // tool
+				show_desc()
+				show_preview(node)
+				// $("#preview").html( node.data.cmd + " " + $("#param").val())
+			}
+		}
+	})
+
+	jstree.on('dblclick', '.jstree-anchor', function (e) { // a vs td when select_node is clicked
+		nodes = jstree.jstree("get_selected", true)
+		if(nodes.length > 0 ){
+			if(nodes[0].type=="2"){
+				show_edit( nodes[0].id, nodes[0].text, nodes[0].parent, nodes[0].data.cmd, nodes[0].data.param, nodes[0].data.desc, nodes[0].data.www, nodes[0].data.license, nodes[0].data.url )
+			}
+		}
+	})
+	// Close all other nodes
+	jstree.on('open_node.jstree', function (e, data) {
+		var nodesToKeepOpen = [];
+
+		// get all parent nodes to keep open
+		$('#'+data.node.id).parents('.jstree-node').each(function() {
+		nodesToKeepOpen.push(this.id);
+		});
+
+		// add current node to keep open
+		nodesToKeepOpen.push( data.node.id );
+
+		// close all other nodes
+		$('.jstree-node').each( function() {
+			if( nodesToKeepOpen.indexOf(this.id) === -1 ) {
+				$("#tree").jstree().close_node(this.id);
+			}
+		})
+	})
+
+	$("#run").on("click", function(e){
+		nodes = jstree.jstree("get_selected", true)
+		if(nodes.length > 0 ){ // nothing selected
+			if(nodes[0].type == "2"){
+				go($('#host').val(), nodes[0].data.cmd, $('#param').val(), false)
+				return(true)
+			}
+		}
+		log("No tool selected")
+	})
+
+	$("#remote").on("click", function(e){ // pretty much the same as #run but go() passes true for remote
+		nodes = jstree.jstree("get_selected", true)
+		if(nodes.length > 0 ){ // nothing selected
+			if(nodes[0].type == "2"){
+				go($('#host').val(), nodes[0].data.cmd, $('#param').val(), true)
+				return(true)
+			}
+		}
+		log("No tool selected")
+	})
+
+	$("#param").on("keyup", function () {
+		node = jstree.jstree("get_selected", true)
+		show_preview(node[0])
+	})
+
+	$("#optimize").on("click", function(e){
+		really_go('', config.optimize, '', false)
+	})
+
+	// choose quickTools
+	$(".dropdown-item").on('click', function(e){
+		$("#quickTools").text($(this).text());
+		$("#quickTools").val($(this).text());
+		$.data(document.body, "quickTools", $.data(document.body, $(this).text()) )
+	})
+
+	// run quickTools
+	$("#quickTools").on("click", function(){
+		go( $("#host").val(), $.data(document.body, "quickTools"), $("#param").val(), false)
+	})
+
+	$("#copy").on("click", function(){
+		if($("#out").val()!="")
+			copyToClipboard(  document.getElementById("out") )
+	})
+
+	// save output
+	$("#save_output").on("click", function(){
+		if($("#out").val() != ""){
+			filename = window.prompt("Enter filename", "c:\\output.txt")
+			if(filename) {
+				filename = filename.trim()
+				if (filename.length > 0){
+					writeFile(filename, $("#out").val() )
+				}
+			}
+		}
+	})
+
+	$("#run_highlighted").on("click", function(){
+		highlighted = getSelectionText("out")
+		if (highlighted == ""){
+			debug("Nothing highlighted")
+		}else{
+			highlight_go( highlighted )
+		}
+		window.getSelection().removeAllRanges()
+	})
+
+	$("#clear").on("click", function(){
+		$("#out").val('')
+	})
+
+	// search
+	var to = false;
+	$('#search').keyup(function () {
+		if(to) { clearTimeout(to); }
+		to = setTimeout(function () {
+			var v = $('#search').val();
+			$('#tree').jstree(true).search(v);
+		}, 250);
+	});
+
+	if(errors){
+		debug("Loading complete with errors")
+		errors = false
+	}else{
+		$("#out").val('Loading Complete')
+	}
+
+	// loading complete, can clear. If loading failed, this would not run
+	$('#footer').html('')
+
+	$(document).on('click', 'a[href]', function(e) {
+		e.preventDefault()
+
+		if( e.target.className === "external" ){
+			// debug("openURL")
+			openURL(e.target.href)
+		}
+	})
+
+	// *************** Hotkeys
+	jwerty.key('alt+d', function (e){ // delete
+		node = jstree.jstree(true).get_selected(true)
+		if(node[0].type==="1"){
+			answer = confirm('Really delete category?')
+			if(answer){
+				console.debug("delete category")
+				$("#delete").trigger("click")
+			}
+		}else if(node[0].type==="2"){
+			answer = confirm('Really delete tool?')
+			if(answer){
+				console.debug("delete tool")
+				$("#delete").trigger("click")
+			}
+		}else{
+			debug("Delete function not available at this time. Select a tool or catergory.")
+		}
+		return(false)
+	})
+
+	jwerty.key('alt+e', function (e){ //edit
+		nodes = jstree.jstree(true).get_selected(true)
+		if(nodes[0].type==="1"){
+			// var inst = $.jstree.reference(data.reference),
+			jstree.jstree(true).edit(nodes[0]);
+		}else if(nodes[0].type==="2"){
+			show_edit( nodes[0].id, nodes[0].text, nodes[0].parent, nodes[0].data.cmd, nodes[0].data.param, nodes[0].data.desc, nodes[0].data.www, nodes[0].data.license, nodes[0].data.url )
+		}else{
+			debug("Edit function not available at this time. Select a tool first.")
+		}
+		return(false)
+	})
+
+	jwerty.key('alt+r', function (e){ //run
+		$("#run").trigger("click")
+		return(false)
+	})
+
+	jwerty.key('alt+m', function (e){ //run
+		$("#remote").trigger("click")
+		return(false)
+	})
+
+	jwerty.key('alt+o', function (e){ //optimize
+		$("#optimize").trigger("click")
+		return(false)
+	})
+
+	jwerty.key('alt+q', function (e){ //run
+		$("#quicktools").trigger("click")
+		return(false)
+	})
+
+	jwerty.key('alt+s', function (e){ //optimize
+		if($("#form_tool").length > 0){
+			$("#btnSave").trigger("click")
+		}else{
+			debug("Save function not available at this time. Select a tool first.")
+		}	return(false)
+	})
+
+	jwerty.key('alt+c', function (e){
+		$("#out").val("")
+	})
+
+	jwerty.key('esc', function (e){ // escape saving in add and edit tools
+		if($("#btnCancel").length > 0){
+			$("#btnCancel").trigger("click")
+		}
+	})
+
+	$(".clearable").each(function() {
+		var $inp = $(this).find("input:text"), $cle = $(this).find(".clearable__clear");
+
+		$inp.on("input", function(){
+			$cle.toggle(!!this.value);
+		});
+
+		$cle.on("touchstart click", function(e) {
+			e.preventDefault();
+			$inp.val("").trigger("input");
+		});
+	});
+
+})
+
+function show_preview(node){
+	debug("show preview")
+
+	if(node){
+		if(node.data.cmd == undefined){  // shouldn't happen
+			return(false)
+		}
+
+		hosts = $("#host").val().trim()
+		action = node.data.cmd
+		if (action.includes("@") && hosts != ""){
+			action.replace(/@/, hosts)
+		}
+
+		// replace the front #(capture console output)
+		cmdline = false
+		if(action[0]==="#"){
+			action = action.substring(2.-1)
+			cmdline = true
+		}
+
+		param = $("#param").val().trim()
+		params = (param == "") ? [] : param.split(",")
+
+		for(var i=0; i<params.length; i++){
+			if(params[i].trim()){
+				action = action.replace("#", params[i])
+			}
+		}
+
+		// action = action.replace(/\?/g,"#")
+
+		if(cmdline){
+			$("#preview").html("#" + action )
+		}else{
+			$("#preview").html( action )
+		}
+	}
+}
+
+</script>
