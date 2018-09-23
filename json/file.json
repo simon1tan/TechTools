@@ -1,0 +1,6 @@
+[
+	{"cmd":"tools\\file\\ddrescue.exe","text":"ddrescue","www":"http://www.gnu.org/s/ddrescue/ddrescue.html","desc":"","license":"","url":"","param":""},
+	{"cmd":"tools\\file\\dmde.exe","text":"DM Disk Editor and Data Recovery","www":"https://dmde.com/download.html","desc":"","license":"","url":"","param":""}
+	{"cmd":"tools\\file\\recuva.exe","text":"Recuva","www":"","desc":"","license":"","url":"","param":""}
+
+]

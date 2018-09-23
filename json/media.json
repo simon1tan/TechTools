@@ -1,0 +1,12 @@
+[
+	{"cmd":"audacity","text":"audacity","desc":"opensource audio editor","www":"http://audacity.sourceforge.net/download/","license":"","url":"","param":""},
+	{"cmd":"avidemux","text":"avidemux","desc":"opensource video editor","www":"http://fixounet.free.fr/avidemux/download.html","license":"","url":"","param":""},
+	{"cmd":"virtualdub","text":"virtualdub","desc":"opensource audio editor","www":"http://virtualdub.org/","license":"GPL","url":"","param":""},
+	{"cmd":"videosplitter","text":"videosplitter","www":"http://www.spgsoft.com/video-splitter-download.html","license":"Freeware","desc":"","url":"","param":""},
+	{"cmd":"handbrake","text":"handbrake","desc":"rip DVDs","www":"https://handbrake.fr/","license":"","url":"","param":""},
+	{"cmd":"paintdotnet","text":"paintDotNet","desc":"","www":"","license":"","url":"","param":""},
+	{"cmd":"gimp","text":"gimp","desc":"","www":"Image editing","license":"","url":"","param":""},
+	{"cmd":"krita","text":"Krita","desc":"","www":"Drawing app","license":"","url":"","param":""},
+	{"cmd":"pencil","text":"Pencil","desc":"Layout editor","www":"","license":"","url":"","param":""},
+	{"cmd":"inkscape","text":"Inkscape","desc":"Vector graphics editor","www":"","license":"","url":"","param":""}
+	]

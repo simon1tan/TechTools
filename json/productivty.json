@@ -1,0 +1,8 @@
+[
+	{"cmd":"akp.exe","text":"Auto Keyboard Presser","desc":"Record and repeat keystrokes","www":"https://www.autosofted.com/auto_keyboard_presser/","license":"Free and Pro version","url":"","param":""},
+	{"cmd":"sikulix.exe","text":"SikuliX","desc":"Use machine vision to automate tasks","www":"http://sikulix.com/","license":"","url":"","param":""},
+	{"cmd":"autoitx.exe","text":"AutoItx","desc":"","www":"https://www.autoitscript.com/site/autoit/downloads/","license":"","url":"","param":""},
+	{"cmd":"ditto","text":"Ditto","desc":"clipboard manager","www":"https://ditto-cp.sourceforge.io/","version":"1.8.1","license":"GPL3","url":"","param":""},
+	{"cmd":"everything.exe","text":"Everything","desc":"Search folder, files, and file content","www":"http://www.voidtools.com/","license":"","url":"","param":""},
+	{"cmd":"autohotkey","text":"autohotkey","desc":"automation and scripting tool with an option to export to a self-contained executable","www":"https://autohotkey.com","license":"","url":"","param":""}
+	]

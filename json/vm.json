@@ -1,0 +1,3 @@
+[
+	{ "cmd":"tools\\vm\\disk2vhd",  "text":"disk2vhd", "desc":"convert physical disk to image", "www":"https://docs.microsoft.com/en-us/sysinternals/downloads/disk2vhd", "version":"2.01" }
+]

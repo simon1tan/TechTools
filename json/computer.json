@@ -1,0 +1,5 @@
+[
+	{"cmd":"sc","text":"sc","desc":"manage services","param":"[start|stop|disable|enable] servicename","www":"","license":"","url":""},
+	{"cmd":"nssm","text":"NSSM","desc":"NSSM - the Non-Sucking Service Manager","www":"http://nssm.cc/download","license":"Public Domain","url":"","param":""},
+	{"cmd":"","text":"","desc":"Agentless computer management","www":"https://www.goverlan.com/tools/wmix_thankyou","license":"Free","url":"","param":""}
+	]

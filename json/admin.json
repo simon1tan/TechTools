@@ -1,0 +1,10 @@
+[
+	{"cmd":"audit.exe","text":"Roadkil Audit","desc":"inventory computer hardware and software over network","www":"https://www.netwrix.com/free_community_edition.html","license":"Pro and Community Edition","url":"","param":""}
+	{"cmd":"sc.exe query","text":"sc query","desc":"show services info","www":"","license":"","url":"","param":""}
+	{"cmd":"sc.exe qc","text":"sc qc","desc":"show service dependencies","www":"","license":"","url":"","param":""}
+	{"cmd":"sc.exe config # start= disabled","text":"sc - disable service","desc":"disable service","www":"","license":"","url":"","param":"service_name}
+	{"cmd":"sc.exe config # start= auto","text":"sc - enable service","desc":"enable service","www":"","license":"","url":"","param":"service_name}
+	{"cmd":"sc.exe create # binPath= \"#\"  DisplayName=\"#\"","text":"sc - create service","desc":"disable service","www":"","license":"","url":"","param":"service_name, exe_location display_name}
+	{"cmd":"sc.exe start #","text":"sc - start service","desc":"startservice","www":"","license":"","url":"","param":"service_name}
+	{"cmd":"sc.exe stop #","text":"sc - stop service","desc":"stop service","www":"","license":"","url":"","param":"service_name}
+]

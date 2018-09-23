@@ -1,0 +1,4 @@
+[
+	{"cmd":"dMaintenance.exe","text":"dMaintenance","desc":"automate maintenance tasks","www":"https://www.d7xtech.com/dmaintenance-home-edition/","license":"","url":"","param":""},
+	{"cmd":"flux.exe","text":"F.lux","desc":"automatically adjust color temperature for day/night viewing","www":"https://justgetflux.com","license":"","url":"","param":""}
+	]

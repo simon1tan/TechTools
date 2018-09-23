@@ -1,0 +1,6 @@
+[
+	{"cmd":"putty.exe @","text":"putty","default":true,"desc":"Free SSH client","www":"https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html","license":"MIT","url":"","param":""},
+	{"cmd":"mstsc.exe /v:@","text":"rdp","desc":"Microsoft Remote Desktop","www":"","license":"","url":"","param":"","vendor":"Microsoft"},
+	{"cmd":"tools\\admin\\vncviewer.exe @","text":"vnc","desc":"VNC","www":"","license":"","url":"","param":""},
+	{"cmd":"psexec.exe \\\\@ %windir%\\system32\\cmd","text":"remote cmd","desc":"Remote cmd","www":"","license":"","url":"","param":""}
+]

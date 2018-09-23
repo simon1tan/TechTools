@@ -1,0 +1,4 @@
+[
+	{ "cmd":"tools\\backup\\slimeimage.exe",  "text":"SlimImage", "desc":"", "www":"https://www.slimwareutilities.com/slimimage_beta.php" },
+	{ "cmd":"tools\\backup\\recimg.exe",  "text":"RecImg", "desc":"", "www":"http://www.recimg.com/" }
+]

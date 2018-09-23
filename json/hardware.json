@@ -1,0 +1,7 @@
+[
+	{"cmd":"tools\\driver\\cpuz_x64.exe","text":"CPUZ x64","desc":"Shows detailed CPU info","www":"https://www.cpuid.com/softwares/cpu-z.html","license":"freeware","url":"","param":""},
+	{"cmd":"tools\\driver\\gpuz_x64.exe","text":"GPUZ x64","desc":"Shows detailed GPU info","www":"https://www.techpowerup.com/gpuz/","license":"freeware","url":"","param":""},
+	{"cmd":"tools\\driver\\HWMonitorPro_x64.exe","text":"HWMonitorPro_x64","desc":"","www":"","license":"","url":"","param":""},
+	{"cmd":"tools\\driver\\gsmartcontrol.exe","text":"GSmartControl","desc":"Monitor HDD SMART data","www":"http://gsmartcontrol.sourceforge.net/home/index.php/Downloads","license":"","url":"","param":""},
+	{"cmd":"tools\\driver\\pcwizard.exe","text":"PC Wizard","desc":"Gathers hardware info (discontinued)","www":"http://www.cpuid.com/softwares/pc-wizard.html","license":"","url":"","param":""}
+	]
