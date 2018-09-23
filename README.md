@@ -1,9 +1,9 @@
 #TechTools
-![screenshot](http://static.marmelab.com/todo.gif)
+![screenshot](docs/capture.png)
 
 ## Introduction
 
-TechTools allows computer support technicians to organize, find, and use the tools they need to solve a problem. There exists many tools out there and it becomes difficult to keep track of of them. This tool allows technician to manage and organize tools and document how to use the tools. Most command-line tools have switches and take parameters that technicians have to memorize or look up. This tool allows the technican to store the command with proper parameters for future use or have documentation in the description that helps the user use the tool properly. Tools can be added or removed with ease.
+TechTools allows computer support technicians to organize, locate, and use the tools they need to solve a problems. There exists numerous tools and it becomes difficult to keep track of of them all. This tool allows technician to manage and organize tools, document how to use the tools, and link to web sites. Most command-line tools take parameters that technicians have to memorize or look up. This tool allows the technican to store the command with proper parameters for future use or have documentation in the description that assists the user in using the tool properly.
 
 TechTools allows the user to execute the command quickly. Just fill in any parameters that are needed and click the "Run" button. Tools can configured to take parameters. This is done by placing placing "#" where a parameter is required. The "#"s are replaced with the parameter. The "Preview Command" section shows what the command that would be run. Clicking on "Run" button executes the command and any output is captured in the "Output" section.
 
@@ -64,8 +64,8 @@ Psexec:
 Reporting Bugs:
 	Please create bug detailed reports(OS version, IE version, mshta.exe version, detailed description with screenshots) and I will try to solve as time allows. Do note that this runs under Microsoft's HTA technology which has many many limitations, many of which I may not be able to work around. I've already had to work
 
-License:
-	This tool is free for personal use. You are welcome to modify the code to fit your needs. Commerical usage costs $5 per year. Please note that this is my full time job.
+Pricing:
+	This tool is free for personal use. For commerical usage, the first year is free. Any usage beyond the first year is $5 per year per seat. Please note that this is my full time job and $10 is pretty much nothing. I hope you find this tool useful.
 
 A special thanks goes out to all the project's below:
 * jquery, http://jquery.com, MIT
