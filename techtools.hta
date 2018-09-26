@@ -1,21 +1,4 @@
-<HTA:APPLICATION
-		ID="TechTools"
-		SINGLEINSTANCE="yes"
-		APPLICATIONNAME="TechTools"
-		BORDER="thin"
-		borderStyle="normal"
-		CAPTION="yes"
-		ICON="images/fix.png"
-		maximizeButton="yes"
-		minimizeButton="yes"
-		showInTaskbar="yes"
-		windowState="maximize"
-		innerBorder="no"
-		navigable="yes"
-		scroll="yes"
-		scrollFlat="yes"
-	/>
-<head>
+<HTA:APPLICATION SINGLEINSTANCE="yes" APPLICATIONNAME="TechTools" windowState="maximize" />
 	<meta http-equiv="x-ua-compatible" content="IE=11">
 	<title>TechTools by Simon Tan</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -37,46 +20,20 @@
 		form input { float: left; width:75% }
 		form div{width:75%}
 		.bolder { font-weight: bolder}
-		.actionName{ margin-left: 10px}
 		fieldset img{padding-bottom: 5px}
 		.busy{ cursor:progress }
 		#run{background-color:#dddddd; color:black}
 		#remote{background-color:#dddddd; color:black}
 		#optimize{background-color:#dddddd; color:black}
 		#quickTools{background-color:#dc3545; color:white}
-		#out{padding:15px;
-			height:250px;
-			width:98%;
-			float:left;
-			background-color:black;
-			color:white
-		}
+		#out{padding:15px; height:250px; width:98%; float:left; background-color:black; color:white }
 		#btnSave{float:right; width:30%}
-
+		#preview{width:100%}
 		/* Clearable text inputs */
-		.clearable{
-			position: relative;
-			display: inline-block;
-		}
-		.clearable input[type=text]{
-			padding-right: 24px;
-			width: 100%;
-			box-sizing: border-box;
-		}
-		.clearable__clear{
-			display: none;
-			position: absolute;
-			right:0; top:0;
-			padding: 0 8px;
-			font-style: normal;
-			font-size: 1.2em;
-			user-select: none;
-			cursor: pointer;
-			color:red;
-		}
-		.clearable input::-ms-clear {  /* Remove IE default X */
-			display: none;
-		}
+		.clearable{ position: relative; display: inline-block;}
+		.clearable input[type=text]{ padding-right: 24px; width: 100%; box-sizing: border-box; }
+		.clearable__clear{ display: none; position: absolute; right:0; top:0; padding: 0 8px; font-style: normal; font-size: 1.2em; user-select: none; cursor: pointer; color:red; }
+		.clearable input::-ms-clear { display: none; /* Remove IE default X */ }
 	</style>
 </head>
 <html>
@@ -121,11 +78,11 @@
 					</div>
 				</div>
 			</td></tr>
-			<tr><td colspan=2><fieldset><legend>Preview Command</legend><p id=preview></p></fieldset></td></tr>
+			<tr><td colspan=2><fieldset><legend>
+				Preview Command</legend><textarea id=preview></textarea></fieldset></td></tr>
 			<tr class="h100"><td colspan=2 class="h100">
 				<fieldset class="h100">
 					<div style="position:relative; float:right; margin-top:30px">
-						<img id="run_highlighted" src="images/launch-lite.png"><br>
 						<img id="copy" src="images/copy-lite.png"><br>
 						<img id="save_output" src="images/save-lite.png"><br>
 						<img id="clear" src="images/clear-lite.png">
@@ -143,7 +100,7 @@
 </html>
 <script src="lib/jquery/jquery-3.3.1.min.js"></script>
 <script src="lib/quicksort.min.js"></script>
-<script src="lib/jstree/jstree.js"></script>
+<script src="lib/jstree/jstree.min.js"></script>
 <link rel="stylesheet" href="lib/jstree/themes/default/style.min.css" />
 <script src="lib/jsonQ.min.js"></script>
 <!-- <script src="lib/json-stringify-pretty-compact.js"></script> -->
@@ -217,7 +174,22 @@ function writeFile(filename, text){
 	}
 }
 
-function highlight_go(action, cmdline){
+function really_go(host, action, remote, cmdline){
+	// replace host
+	while(action.includes("@")){
+		action = action.replace("@", host)
+	}
+
+	if(remote){
+		if(host === ""){
+			log("Remote host must be filled in.")
+			blink_element($("#host"))
+			return(false)
+		}else{
+			action = config.remote + " \\\\" + host + " " + action
+		}
+	}
+	debug(action)
 	oShell = new ActiveXObject("WScript.shell");
 	$('body').addClass('busy')
 	try{
@@ -230,8 +202,9 @@ function highlight_go(action, cmdline){
 			while(!oExec.StdErr.AtEndOfStream){
 				output += oExec.StdErr.ReadLine() + "\n"
 			}
-			log("Executing program: " + action + "\n" +  output)
+			log("Executing program#: " + action + "\n" +  output)
 		}else{
+			log("Executing program: " + action)
 			bWaitOnReturn = false
 			intWindowStyle = 1
 			oShell.run(action, intWindowStyle, bWaitOnReturn )
@@ -243,59 +216,7 @@ function highlight_go(action, cmdline){
 	}
 }
 
-function really_go(host, action, param, remote, cmdline){
-	// if require host but none specified in cases where hosts = "abc,"
-	// if (action.includes("@") && host.trim() == ""){
-	// 	log("Please enter host")
-	// 	blink_element($("#host"))
-	// 	return(false)
-	// }
-
-	// replace host
-	while(action.includes("@")){
-		action = action.replace("@", host)
-	}
-
-	// check parameters
-	params = (param == "") ? params=[] : params = param.split(",") // this returns 1 if param is empty!
-
-	action_count = (action.match(/#/g) || []).length // count action parameters required
-	// trim params
-	$.each(params, function(i, param){
-		params[i] = param.trim()
-	})
-
-	if( params.length > action_count){
-		debug("Too many parameters")
-		blink_element($("#param"))
-		return false
-	} else if ( params.length < action_count) {
-		debug("Not enough parameters")
-		blink_element($("#param"))
-		return false
-	}
-	i = 0
-	while(action.includes("#")){
-		action = action.replace("#", params[i])
-		i++
-	}
-
-	if(remote){
-		if(host === ""){
-			debug("Remote host must be filled in.")
-			blink_element($("#host"))
-			return(false)
-		}else{
-			action = config.remote + " \\\\" + host + " " + action
-		}
-	}
-	debug(action)
-
-	// return(false)
-	highlight_go(action, cmdline) // common code
-}
-
-function go(hosts, action, param, remote){
+function go(hosts, action, remote){
 	// if require host but none specified
 	hosts = trim_char(hosts.trim(),",") //remove any trailing commas
 	if (action.includes("@") && hosts.trim() == ""){
@@ -311,34 +232,14 @@ function go(hosts, action, param, remote){
 		cmdline = true
 	}
 
-	// check to see if need any params. If not needed, set to empty
-	if (action.includes("#")){
-		param = trim_char(param.trim(),",") //remove any trailing commas
-		//check that param does not contain #
-		if(param.includes("#")){
-			log("Param may not contain #")
-			blink_element($("#param"))
-			return(false)
-		}
-	}else{
-		param = ""
-	}
-
-	// check that host does not contain @
-	if(hosts.includes("@")){
-		log("Host may not contain @")
-		blink_element($("#host"))
-		return(false)
-	}
-
 	// process single or multiple hosts
 	if( hosts.includes(",") ){
 		hosts = hosts.split(",")
 		$.each(hosts, function(i, host){
-			really_go(host.trim(), action, param, remote, cmdline)
+			really_go(host.trim(), action, remote, cmdline)
 		})
 	}else{
-		really_go(hosts.trim(), action, param, remote, cmdline)
+		really_go(hosts.trim(), action, remote, cmdline)
 	}
 }
 
@@ -401,18 +302,24 @@ function show_edit(id, text, parent, cmd, param, desc, www, license, url){
 
 	$("#desc").html("<form id=form_tool><input type=hidden id=parent value='" + parent + "'><label>Name:</label><input id=text value='" + text +"'><label>Description:</label><input id=desc1 value='"+ desc +"'><label>Command:</label><input id=cmd value='"+ cmd +"'><label>Parameters:</label><input id=param1 value='"+ param +"'><label>WWW:</label><input id=www value='"+ www +"'><label>License:</label><input id=license value='"+ license +"'><label>URL:</label><input id=url value='"+ url +"'><div><input id=btnCancel type=\"button\" value=Cancel onclick=\"show_desc()\" style=\"width:30%;margin-left:60px\"><input type=button id=btnSave onclick=\"save_edit(this.form)\" value=Save></div></form>")
 
-	$('form').dirrty({ preventLeaving: false })
+	$('#form_tool').dirrty({
+		preventLeaving: false
+	}).on("dirty", function() {
+		$("#btnSave").prop('disabled', false);
+	}).on("clean", function() {
+		$("#btnSave").prop('disabled', true);
+	});
 }
 
 function save_edit(f){
 	// make sure data is not empty
 	if (!$("#form_tool").dirrty("isDirty")) {
-		debug("No changes to save")
+		log("No changes to save")
 		return(false)
 	}
 
 	if( (f.cmd.value === "") || (f.text.value === "")){
-		debug("Name and Command must be filled in")
+		log("Name and Command must be filled in")
 		return(false)
 	}
 
@@ -436,37 +343,30 @@ function save_edit(f){
 		texts = jsonQ(json).find("text").value()
 
 		if( $.inArray(obj.text, texts ) > -1 ){
-			debug("Name conflicts with existing node. Must be unique.")
+			log("Name conflicts with existing node. Must be unique.")
 			blink_element($("#text"))
 			return(false)
 		}
 	}
 
+	log("Saved " + obj.text)
+
 	// replace old object
-	node = jstree.jstree(true).get_selected(true);
-	node[0].data = obj.data
-	jstree.jstree(true).set_text(node[0], obj.text)
-	set_id(node[0], obj.id)
+	// node = jstree.jstree(true).get_selected(true);
+	selected_node[0].data = obj.data
+	jstree.jstree(true).set_text(selected_node[0], obj.text)
+	set_id(selected_node[0], obj.id)
 
 	show_desc()
+	show_preview(selected_node[0])
+
 	// write to file
-	// node = jstree.jstree(true).get_node(node.parent, true)
-	write_category(node.parent)
+	write_category(selected_node[0].parent)
 }
 
 function encode(str){
-	// str = str.replace(/\\/g,"\\\\")
-	// str = str.replace(/\\"/g, String.fromCharCode(92) + "\"")
-	// str = str.replace(/\\/g,"\\\\")
-	// str = str.replace(/"/g,"\\\"")
 	str = str.replace(/'/igm,"&apos;")
 	return (str)
-}
-
-function decode(str){
-	str = str.replace(/\\\\/g,"\\")
-	return (str)
-
 }
 
 function check_duplicate_text(node, match){
@@ -635,13 +535,12 @@ $(document).ready(function(){
 	}]
 
 	// init jstree
-	debug('Initialize jstree')
 	jstree = $('#tree').jstree({
 		'core' : {
 			'check_callback' : function (operation, node, node_parent, node_position, more) {
 				// Prevent renaming of root node
 				if(operation=='rename_node' && node.type==="0"){
-					debug("Renaming of root node is not allowed")
+					log("Renaming of root node is not allowed")
 					return false
 				}else{
 					return true
@@ -843,12 +742,12 @@ $(document).ready(function(){
 		var node = data.node //$.extend(true, {}, data.node);
 
 		if(node.text === node.data.previous_text){ // nothing changed
-			debug("Nothing changed")
+			log("Nothing changed")
 			return(false)
 		}
 
 		if(node.type==="0"){
-			debug("Renaming root is not allowed")
+			log("Renaming root is not allowed")
 			jwerty.fire('escape','#tree','body')
 			return(false)
 		}
@@ -912,7 +811,7 @@ $(document).ready(function(){
 			if (node.type === '2' ){ // tool
 				show_desc()
 				show_preview(node)
-				// $("#preview").html( node.data.cmd + " " + $("#param").val())
+				// $("#preview").val( node.data.cmd + " " + $("#param").val())
 			}
 		}
 	})
@@ -945,26 +844,59 @@ $(document).ready(function(){
 		})
 	})
 
-	$("#run").on("click", function(e){
-		nodes = jstree.jstree("get_selected", true)
-		if(nodes.length > 0 ){ // nothing selected
-			if(nodes[0].type == "2"){
-				go($('#host').val(), nodes[0].data.cmd, $('#param').val(), false)
-				return(true)
-			}
+	$("#run").on("click", function(e, remote){
+		remote = (remote || false)
+
+		if($("#preview").val().trim() ===""){
+			log("Nothing to run")
+			return(false)
 		}
-		log("No tool selected")
+		// check number of params needed vs number filled in
+		node = jstree.jstree(true).get_selected(true)[0]
+		if(!node || node.type==="0" || node.type==="1"){
+			log("Select a tool first")
+			return(false)
+		}
+
+		// check param for #
+		param = $("#param").val().trim()
+		if(param.includes("#")){
+			log("Param should not have #")
+			blink_element($("#param"))
+			return(false)
+		}
+
+		// check host for @
+		if($("#host").val().includes("@")){
+			log("Host should not have @")
+			blink_element($("#host"))
+			return(false)
+		}
+
+		// params_entered = $("#param").val().split(",")
+		params_entered = (param === "") ? [] : param.split(",").map(function(item) {
+  			return item.trim();
+		}); // this returns 1 if param is empty!
+
+		 // this returns 1 if param is empty!
+		params_entered = params_entered.filter(Boolean) // remove empty strings from array
+
+		action = node.data.cmd
+		// check for command line output
+		action = (action[0]==="#") ? action = action.substring(2.-1) : action
+		needed_count = (action.match(/#/g) || []).length // or use param field and split(",")
+
+		if( needed_count > params_entered.length){
+			log("Not enough parameters")
+			blink_element($("#param"))
+			return (false)
+		}else{
+			go($('#host').val(), $("#preview").val(), remote)
+		}
 	})
 
-	$("#remote").on("click", function(e){ // pretty much the same as #run but go() passes true for remote
-		nodes = jstree.jstree("get_selected", true)
-		if(nodes.length > 0 ){ // nothing selected
-			if(nodes[0].type == "2"){
-				go($('#host').val(), nodes[0].data.cmd, $('#param').val(), true)
-				return(true)
-			}
-		}
-		log("No tool selected")
+	$("#remote").on("click", function(e){
+		$("#run").trigger("click", true)
 	})
 
 	$("#param").on("keyup", function () {
@@ -981,11 +913,15 @@ $(document).ready(function(){
 		$("#quickTools").text($(this).text());
 		$("#quickTools").val($(this).text());
 		$.data(document.body, "quickTools", $.data(document.body, $(this).text()) )
+
+		//execute
+		$("#quickTools").trigger("click")
 	})
 
 	// run quickTools
 	$("#quickTools").on("click", function(){
-		go( $("#host").val(), $.data(document.body, "quickTools"), $("#param").val(), false)
+
+		go( $("#host").val(), $.data(document.body, "quickTools"), false)
 	})
 
 	$("#copy").on("click", function(){
@@ -996,7 +932,9 @@ $(document).ready(function(){
 	// save output
 	$("#save_output").on("click", function(){
 		if($("#out").val() != ""){
-			filename = window.prompt("Enter filename", "c:\\output.txt")
+			d = new Date().toLocaleString().replace(/(\/|\:)/g,"_")
+			date_string = d.replace(",","")
+			filename = window.prompt("Enter filename", "c:\\techtools_" + date_string + ".txt")
 			if(filename) {
 				filename = filename.trim()
 				if (filename.length > 0){
@@ -1004,16 +942,6 @@ $(document).ready(function(){
 				}
 			}
 		}
-	})
-
-	$("#run_highlighted").on("click", function(){
-		highlighted = getSelectionText("out")
-		if (highlighted == ""){
-			debug("Nothing highlighted")
-		}else{
-			highlight_go( highlighted )
-		}
-		window.getSelection().removeAllRanges()
 	})
 
 	$("#clear").on("click", function(){
@@ -1055,17 +983,17 @@ $(document).ready(function(){
 		if(node[0].type==="1"){
 			answer = confirm('Really delete category?')
 			if(answer){
-				console.debug("delete category")
+				debug("delete category")
 				$("#delete").trigger("click")
 			}
 		}else if(node[0].type==="2"){
 			answer = confirm('Really delete tool?')
 			if(answer){
-				console.debug("delete tool")
+				debug("delete tool")
 				$("#delete").trigger("click")
 			}
 		}else{
-			debug("Delete function not available at this time. Select a tool or catergory.")
+			log("Delete function not available at this time. Select a tool or catergory.")
 		}
 		return(false)
 	})
@@ -1078,7 +1006,7 @@ $(document).ready(function(){
 		}else if(nodes[0].type==="2"){
 			show_edit( nodes[0].id, nodes[0].text, nodes[0].parent, nodes[0].data.cmd, nodes[0].data.param, nodes[0].data.desc, nodes[0].data.www, nodes[0].data.license, nodes[0].data.url )
 		}else{
-			debug("Edit function not available at this time. Select a tool first.")
+			log("Edit function not available at this time. Select a tool first.")
 		}
 		return(false)
 	})
@@ -1107,7 +1035,7 @@ $(document).ready(function(){
 		if($("#form_tool").length > 0){
 			$("#btnSave").trigger("click")
 		}else{
-			debug("Save function not available at this time. Select a tool first.")
+			log("Save function not available at this time. Select a tool first.")
 		}	return(false)
 	})
 
@@ -1169,9 +1097,9 @@ function show_preview(node){
 		// action = action.replace(/\?/g,"#")
 
 		if(cmdline){
-			$("#preview").html("#" + action )
+			$("#preview").val("#" + action )
 		}else{
-			$("#preview").html( action )
+			$("#preview").val( action )
 		}
 	}
 }
