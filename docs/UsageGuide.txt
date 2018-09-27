@@ -1,0 +1,61 @@
+TechTools Usage Gide
+
+# Introduction
+
+![screenshot](docs/annotated.png)
+TechTools allows the users to organize, manage, and document their tools.
+
+# Running Command
+To execute a command, click on category, click on a tool, and click Run. Clicking on the "Remote" button executes the command from the designated computer in the host field. Configure the command field with a "@" to signify where the host will be located in the command. You will need psexec(https://docs.microsoft.com/en-us/sysinternals/downloads/psexec) as well as administrative rights to perform this functon. Be sure to configure the psexec tool's location in settings.json. Storing the tool in the Windows folder is a good location.
+
+# Adding Tools:
+A Tool is any executable along with any switches. This flexibility allows the user to do pretty much anything. It can copy files to specific locations, import registry settings, or silently install software. It could also provide a command prompt to a remote computer. Be creative.
+
+Before adding a tool, create a category first. Right-click on the root of the tree (TechTools), choose create, and give the category a name. The rename and delete actions alllow renaming or deletion of categories. Deletion is permanent so be careful.
+
+To add a tool, right-click on a category and choose create. Use the form to fill in the details of the tool. Name and Command are mandatory. Click "Save" to save the data or "Cancel". Clicking on the tool again will show the description of the tool. Double-clicking on the tool opens the tool for editing.
+
+# Tool Command Parameters
+The most important field is the Command field. Command is the executable that will executed along with any switces when the "Run" or "Remote" button is clicked. Command must be unique within same category. Commands can be configured to take parameters. This is done by placing "#" where a parameter is required. When "Run" is click, the "#"s are replaced with the values in the parameters field. For example, a command like "tools\ad\netdom.exe remove # /Domain:# /userd:# /passwordd:#" would take four parameters. Fill in the parameter field with "1, 2, 3, 4" and the exeutable becomes tools\ad\netdom.exe remove 1 /Domain:2 /userd:3 /passwordd:4. The "Preview Command" section shows a preview of the final command. Clicking on "Run" button executes that command.
+
+Examples:
+* msiexec.exe /i /quiet #.msi     // where the parameter could point to any of your msi files
+
+# DOS commands
+DOS commands usually have the output shown in the terminal. To capture this output, put "#" in the front of a Command and any output will be shown in the output field.
+Examples:
+* #cmd /c dir c:\		// show a list of files
+* #pslist		// show a list of processes
+
+# Host
+The host field takes hostname or ip address of the destination device. This field can also take a comma-seperated list of hosts. For example, having a host field "hostA, hostB, hostC" and clicking on the quicktool putty would execute putty.exe hostA, putty.exe hostB, and putty.exe hostC.
+
+# Optimize
+The "Optimize" button runs a script of your choice(configurable in settings.json). No script is included due to liability reasons and because every envionment is different. The script would clean temp files, defrags(back in the days of WinXP), remove old profiles, disables services, disable startups, etc.
+
+# QuickTools
+QuickTools is a list of tools(configurable by editing json/quicktools.json) that can be quickly accessed without having to find them in the tree. These tools might include putty, remote desktop, or vnc. Put your commonly used tools here.
+
+# Output
+The output section logs any output the tool might produce. The user can copy the output or save to file.
+
+Included is a script (json_insert_attribute.rb) to download multiple software quickly. The hope is that users will share their tools with others and files can be quickly downloaded.
+
+Notes:
+	The tools that are currently present are just for example. They are real tools but it's better if you add tools that you know and are familiar with. For liability and infringement reasons, tools are not provided.
+
+
+Shortcuts keys. These keys are hard coded into the application but can still be changed with ease.:
+* ALT + e, Edit category or tool.
+* ALT + d, Delete a category or tool. Deletions are is permanent.
+* ALT + s, Save edit.
+* ALT + r, Run a tool locally
+* ALT + m, Run a tool remotely
+* ALT + o, Optimize. Run optimize routine
+* ALT + q, Run the selected quick tool
+* ALT + c, Clear output
+
+Software Requirements
+* Developed and tested on Windows 7. Should work on Windows XP and other versions of Windows that have mshta.exe but not tested.
+* Administrative rights needed to execute on remote computers
+* A common network share that is accessible to access files
