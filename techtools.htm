@@ -201,14 +201,17 @@ function go(hosts, action, remote){
 	}
 
 	// process process single or multiple hosts
-	if( hosts.includes(",")){
-		hosts = hosts.split(",")
-		$.each(hosts, function(i, host){
-			really_go(host.trim(), action, remote, cmdline)
-		})
-	}else{
-		really_go(hosts.trim(), action, remote, cmdline)
+	if(action.includes("@")){
+		if( hosts.includes(",")){
+			hosts = hosts.split(",")
+			$.each(hosts, function(i, host){
+				really_go(host.trim(), action, remote, cmdline)
+			})
+			return(true)
+		}
 	}
+
+	really_go(hosts.trim(), action, remote, cmdline)
 }
 
 function debug(text) {
@@ -265,6 +268,9 @@ function show_edit(id, text, parent, cmd, param, desc, www, license, url){
 	desc = (desc) ?  encode(desc) : ''
 
 	$("#desc").html("<form id=form_tool><input type=hidden id=parent value='" + parent + "'><label>Name:</label><input id=text value='" + text +"'><label>Description:</label><input id=desc1 value='"+ desc +"'><label>Command:</label><input id=cmd value='"+ cmd +"'><label>Parameters:</label><input id=param1 value='"+ param +"'><label>WWW:</label><input id=www value='"+ www +"'><label>License:</label><input id=license value='"+ license +"'><label>URL:</label><input id=url value='"+ url +"'><div><input id=btnCancel type=\"button\" value=Cancel onclick=\"show_desc()\" style=\"width:30%;margin-left:60px\"><input disabled type=button id=btnSave onclick=\"save_edit(this.form)\" value=Save></div></form>")
+
+	$("#text").focus()
+	$("#text").select()
 
 	$('#form_tool').dirrty({
 		preventLeaving: false
@@ -395,6 +401,43 @@ function set_id(node, new_id){
 
 }
 
+function delete_node(node){
+		switch(node.type){
+			case "0":
+				log("Not allowed to delete root")
+				break
+			case "1": // delete category
+				answer = confirm('Really delete category?')
+				if(answer){
+					jstree.jstree('delete_node', node);
+
+					// remove from settings.json
+					index = $.inArray(node.text, config.categories)
+					config.categories.splice(index, 1)
+					// writeFile("settings.json", stringify(config ) )
+					debug("Write File 1: " + "settings.json")
+
+					// delete file
+					// fso.DeleteFile(node.text + ".json")
+
+					// writeFile(parent + ".json", stringify( container ))
+					$("#desc").html('')
+				}
+				break
+			case "2": // delete tool
+				answer = confirm('Really delete tool?')
+				if(answer){
+					jstree.jstree('delete_node', node);
+
+					// write_category(node.id)
+					debug("Write file: " + node.parent + ".json")
+					$("#desc").html('')
+				}
+				break
+		}
+
+}
+
 // var jstree = null // make jstree global
 var last_clicked = null //used remove bolder
 var creating_node = false //used to differentiate creating or editing
@@ -518,6 +561,14 @@ $(document).ready(function(){
 	// debug(JSON.stringify(tree))
 	jstree = $('#tree').jstree({
 		"core" : {
+			// keyboard:{"up":function(e){
+			// 	// alert("up")
+			// 	current_node = jstree.jstree(true).get_selected(true)
+			// 	upper_node = jstree.jstree(true).get_prev_dom(current_node[0])
+			// 	jstree.jstree(true).deselect_node(current_node[0])
+			// 	jstree.jstree(true).select_node(upper_node[0], false, true)
+			// 	// jstree.jstree(true).get_node(upper_node[0].id, true).focus()
+			// }},
 			// "check_callback" : true,
 			'check_callback' : function (operation, node, node_parent, node_position, more) {
 				// Prevent renaming of root node
@@ -561,7 +612,7 @@ $(document).ready(function(){
 									}else{
 										duplicate = false
 
-										new_obj = {"id":text, "text": text, "type":"1", "parent":"0", "children":[], data:{ "previous_text":text }}
+										new_obj = {"id":node.id+"-"+text, "text": text, "type":"1", "parent":"0", "children":[], data:{ "previous_text":text }}
 										node = jstree.jstree("create_node", node.id, new_obj, "first"); // create node under "1"
 
 										// add to config
@@ -576,7 +627,7 @@ $(document).ready(function(){
 										// debug("Write File: " + text + ".json")
 										// debug(stringify(config, {maxLength:500}))
 
-										jstree.jstree('edit', text, false);
+										jstree.jstree('edit', new_obj.id, false);
 									}
 								}
 							}
@@ -640,22 +691,7 @@ $(document).ready(function(){
 							"separator_after": false,
 							"label": "Delete",
 							"action": function (obj) {
-								answer = confirm('Really delete category?')
-								if(answer){
-									jstree.jstree('delete_node', node);
-
-									// remove from settings.json
-									index = $.inArray(node.text, config.categories)
-									config.categories.splice(index, 1)
-									// writeFile("settings.json", stringify(config ) )
-									debug("Write File 1: " + "settings.json")
-
-									// delete file
-									// fso.DeleteFile(node.text + ".json")
-
-									// writeFile(parent + ".json", stringify( container ))
-									$("#desc").html('')
-								}
+								delete_node(node)
 							}
 						}
 					};
@@ -674,14 +710,7 @@ $(document).ready(function(){
 							"separator_after": false,
 							"label": "Delete",
 							"action": function (obj) {
-								answer = confirm('Really delete tool?')
-								if(answer){
-									jstree.jstree('delete_node', node);
-
-									// write_category(node.id)
-									debug("Write file: " + node.parent + ".json")
-									$("#desc").html('')
-								}
+								delete_node(node)
 							}
 						}
 					};
@@ -745,62 +774,57 @@ $(document).ready(function(){
 
 		debug("rename_node.jstree")
 
-		// if(creating_node){ // CREATE AND RENAME
-			creating_node = false
+		creating_node = false
 
-			// node.text already changed!
-			if( node.type ==="1"){  // rename category
+		// node.text already changed!
+		if( node.type ==="1"){  // rename category
 
-				// update settings file and save
-				cat_index = $.inArray(node.data.previous_text, config.categories)
-				config.categories[cat_index] = node.text
-				// writeFile("settings.json", stringify(config, {maxLength:500}))
-				debug("Update settings.json")
+			// update settings file and save
+			cat_index = $.inArray(node.data.previous_text, config.categories)
+			config.categories[cat_index] = node.text
+			// writeFile("settings.json", stringify(config, {maxLength:500}))
+			debug("Update settings.json")
 
 
-				// rename file
-				// fso.MoveFile(node.data.previous_text + ".json", node.text + ".json")
-				// if(node.text != node.data.previous_text){
-				debug("Move File:" + node.data.previous_text + ".json, " + node.text + ".json")
-				// }else{
-				// 	debug("Move File not needed")
-				// }
+			// rename file
+			// fso.MoveFile(node.data.previous_text + ".json", node.text + ".json")
+			// if(node.text != node.data.previous_text){
+			debug("Move File:" + node.data.previous_text + ".json, " + node.text + ".json")
+			// }else{
+			// 	debug("Move File not needed")
+			// }
 
-				set_id(node, node.text )
-				node.data.previous_text = node.text
+			set_id(node, node.parent + "-" + node.text )
+			node.data.previous_text = node.text
 
-				// change all children ids to match
-				update_children_ids( node.text )
-			}else if( node.type==="2"){ // tool
-				// new_text = node.parent + "-" + new_text
+			// change all children ids to match
+			update_children_ids( node.text )
+		}else if( node.type==="2"){ // tool
+			// new_text = node.parent + "-" + new_text
 
-				set_id(node,  node.parent+'-'+node.text )
+			set_id(node,  node.parent+'-'+node.text )
 
-				// save tools
-				// json = jstree.jstree(true).get_json( node.parent, { flat:false } ).children
+			// save tools
+			// json = jstree.jstree(true).get_json( node.parent, { flat:false } ).children
 
-				// writeFile(node.parent, )
-				debug("Write tool 2: " )
-				// $.each(jsondata[0].children, function(i, cat){
-				// 	if( cat.id === node.parent ){
-				// 		// find tool index
+			// writeFile(node.parent, )
+			debug("Write tool 2: " )
+			// $.each(jsondata[0].children, function(i, cat){
+			// 	if( cat.id === node.parent ){
+			// 		// find tool index
 
-						// j = jsonQ(jsondata)
-						// j.setPathValue( [0, "children", i, "children", j, "text"], node.text)
+					// j = jsonQ(jsondata)
+					// j.setPathValue( [0, "children", i, "children", j, "text"], node.text)
 
-						// debug("Write tool 2: " + obj.id)
+					// debug("Write tool 2: " + obj.id)
 
-				// 		return(false)
-				// 	}
-				// })
+			// 		return(false)
+			// 	}
+			// })
 
-				// show_add(node.parent, node.text)
-				// show_edit( node.id, node.text, node.parent, node.data.cmd, node.data.param, node.data.desc, node.data.www, node.data.license, node.data.url )
-				show_desc()
-				$('#form').isDirty = true
-			}
-		// }else{ // RENAME
-		// }
+			show_desc()
+			// $('#form').isDirty = true
+		}
 
 		// $("#new_category_anchor").attr("id", node.text + "_anchor") // not sure if this does anything
 
@@ -885,11 +909,11 @@ $(document).ready(function(){
 			return(false)
 		}
 
-		node = jstree.jstree(true).get_selected(true)[0]
-		if(!node || node.type==="0" || node.type==="1"){
-			log("Select a tool first")
-			return(false)
-		}
+		// node = jstree.jstree(true).get_selected(true)[0]
+		// if(!node || node.type==="0" || node.type==="1"){
+		// 	log("Select a tool first")
+		// 	return(false)
+		// }
 
 		// check param for #
 		param = $("#param").val().trim()
@@ -913,18 +937,23 @@ $(document).ready(function(){
 
 		params_entered = params_entered.filter(Boolean) // remove empty strings from array
 
-		action = node.data.cmd
-		// check for command line output
-		action = (action[0]==="#") ? action = action.substring(2.-1) : action
-		needed_count = (action.match(/#/g) || []).length // or use param field and split(",")
+		node = jstree.jstree(true).get_selected(true)[0]
+		if(node){
 
-		if( needed_count > params_entered.length){
-			log("Not enough parameters")
-			blink_element($("#param"))
-			return (false)
-		}else{
-			go($('#host').val(), $("#preview").val(), remote)
+			action = node.data.cmd
+			// check for command line output
+			action = (action[0]==="#") ? action = action.substring(2.-1) : action
+			needed_count = (action.match(/#/g) || []).length // or use param field and split(",")
+
+			if( needed_count > params_entered.length){
+				log("Not enough parameters")
+				blink_element($("#param"))
+				return (false)
+			}
 		}
+
+		go($('#host').val(), $("#preview").val(), remote)
+
 	})
 
 	$("#remote").on("click", function(e){
@@ -1009,6 +1038,12 @@ $(document).ready(function(){
 	$("#quickTools").text(el.text);
 	$("#quickTools").val(el.text);
 
+	$("#copy").on("click", function(){
+		if($("#out").val()!=""){
+			copyToClipboard(  document.getElementById("out") )
+		}
+	})
+
 	$.data(document.body, "quickTools", $.data(el, "cmd") )
 
 	// open link in default browser instead of IE
@@ -1022,20 +1057,7 @@ $(document).ready(function(){
 	// *************** Hotkeys
 	jwerty.key('alt+d', function (e){ // delete
 		nodes = jstree.jstree(true).get_selected(true)
-		if(nodes[0].type==="1"){
-			answer = confirm('Really delete category?')
-			if(answer){
-				$("#delete").trigger("click")
-			}
-		}else if(nodes[0].type==="2"){
-			answer = confirm('Really delete tool?')
-			if(answer){
-				$("#delete").trigger("click")
-			}
-		}else{
-			log("Delete function not available at this time. Select a tool or catergory.")
-		}
-		return(false)
+		delete_node(nodes[0])
 	})
 
 	jwerty.key('alt+e', function (e){ //edit
@@ -1048,27 +1070,22 @@ $(document).ready(function(){
 		}else{
 			log("Edit function not available at this time. Select a tool first.")
 		}
-		return(false)
 	})
 
 	jwerty.key('alt+m', function (e){ //run
 		$("#remote").trigger("click")
-		return(false)
 	})
 
 	jwerty.key('alt+r', function (e){ //run
 		$("#run").trigger("click")
-		return(false)
 	})
 
 	jwerty.key('alt+o', function (e){ //optimize
 		$("#optimize").trigger("click")
-		return(false)
 	})
 
 	jwerty.key('alt+q', function (e){ //run
 		$("#quicktools").trigger("click")
-		return(false)
 	})
 
 	jwerty.key('alt+s', function (e){
@@ -1076,7 +1093,7 @@ $(document).ready(function(){
 			$("#btnSave").trigger("click")
 		}else{
 			log("Edit function not available at this time. Select a tool first.")
-		}	return(false)
+		}
 	})
 
 	jwerty.key('alt+c', function (e){
