@@ -1,19 +1,19 @@
-#TechTools
+# Screenshot
 ![screenshot](docs/capture.png)
 
 # Introduction:
 TechTools allows computer support technicians to organize, locate, and document the tools they use. IT professionals use many tools and it becomes difficult to keep track of of them all or remember how to use them properly. Most command-line tools take parameters that technicians have to memorize or look up. This tool allows the technican to store the command with proper parameters for future use or have documentation in the description that assists the user in using the tool properly.
 
 # Getting Started:
-* 1. Download psexec(https://docs.microsoft.com/en-us/sysinternals/downloads/psexec)  and extract the tool to your Windows folder.
-* 2. Create a "tools" folder to store your executables.
-* 3. Create a "net" folder.
-* 4. Download TCPView (https://docs.microsoft.com/en-us/sysinternals/downloads/tcpview) and extract into the "net" folder. Make sure tcpview.exe is in this folder.
-* 4. Right-click on Techtools and click Create Category, name it "Net"
-* 5. Right-click on Net and click Create Tool
-* 6. In the form, fill in the fields: name=TCPView, command=tools/net/tcpview.exe
-* 7. Click Save.
-* 8. Click Run.
+1. Download psexec(https://docs.microsoft.com/en-us/sysinternals/downloads/psexec)  and extract the tool to your Windows folder.
+2. Create a "tools" folder to store your executables.
+3. Create a "net" folder.
+4. Download TCPView (https://docs.microsoft.com/en-us/sysinternals/downloads/tcpview) and extract into the "net" folder. Make sure tcpview.exe is in this folder.
+5. Right-click on Techtools and click Create Category, name it "Net"
+6. Right-click on Net and click Create Tool
+7. In the form, fill in the fields: name=TCPView, command=tools/net/tcpview.exe
+8. Click Save.
+9. Click Run.
 
 See Usage Guide for full documentation docs/UserGuide.txt.
 
