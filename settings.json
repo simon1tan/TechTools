@@ -1,0 +1,1 @@
+{"default_category":"software","categories":["ad","admin","av","debug","drivers","hardware","installs","net","office","registry","registry settings","server","shortcuts","vm","web"],"sort_categories":true,"sort_tools":true,"replacement_char":"#","host_char":"@","remote":"psexec64.exe","optimize":"wscript.exe tools\\scripts\\optimize.vbs","history_max":10}

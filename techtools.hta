@@ -26,6 +26,7 @@
 		#remote{background-color:#dddddd; color:black}
 		#optimize{background-color:#dddddd; color:black}
 		#quickTools{background-color:#dc3545; color:white}
+		#history{background-color:yellow; color:black}
 		#out{padding:15px; height:250px; width:98%; float:left; background-color:black; color:white }
 		#btnSave{float:right; width:30%}
 		#preview{width:100%}
@@ -68,18 +69,23 @@
 				<td>
 					<button type=button class=btn id=run><u>R</u>un</button>
 					<button type=button class=btn id=remote>Re<u>m</u>otely</button>
-					<button type=button class=btn id=optimize><u>O</u>ptimize</button>
 				<div class="btn-group">
 					<button type="button" id=quickTools class="btn">QuickTools</button>
 					<button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					  	<span class="sr-only">Toggle Dropdown</span>
 					</button>
-					<div class="dropdown-menu">
-					</div>
+					<div class="dd_qt dropdown-menu"></div>
+				</div>
+				<div class="btn-group">
+					<button type="button" id=history class="btn" disabled>History</button>
+					<button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					  	<span class="sr-only">Toggle Dropdown</span>
+					</button>
+					<div class="dd_history dropdown-menu"></div>
 				</div>
 			</td></tr>
 			<tr><td colspan=2><fieldset><legend>
-				Preview Command</legend><textarea id=preview></textarea></fieldset></td></tr>
+				Preview Command</legend><textarea id=preview></textarea></fieldset><button id="eval">Eval</button></td></tr>
 			<tr class="h100"><td colspan=2 class="h100">
 				<fieldset class="h100">
 					<div style="position:relative; float:right; margin-top:30px">
